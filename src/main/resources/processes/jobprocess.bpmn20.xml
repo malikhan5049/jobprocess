@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.bondinco.com/jobprocess">
+  <process id="jobProcess" name="JobProcess" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="job-def" name="Define Job">
+      <documentation>${job.jobTitle} is posted on portal</documentation>
+    </userTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="job-def"></sequenceFlow>
+    <userTask id="job-pub" name="Publish Job">
+      <documentation>${job.jobTitle} us published</documentation>
+    </userTask>
+    <sequenceFlow id="flow3" sourceRef="job-def" targetRef="job-pub"></sequenceFlow>
+    <exclusiveGateway id="job-gw-pub" name="publish job gateway"></exclusiveGateway>
+    <sequenceFlow id="flow4" sourceRef="job-pub" targetRef="job-gw-pub"></sequenceFlow>
+    <sequenceFlow id="job-flow-pubcancel" sourceRef="job-gw-pub" targetRef="job-event-pubend">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${publish == false}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="job-task-waitapplicants" name="Wait for Applicants" activiti:dueDate="${jobCloseDate}">
+      <documentation>wait for applicants until ${jobCloseDate}</documentation>
+    </userTask>
+    <sequenceFlow id="job-flow-pub" sourceRef="job-gw-pub" targetRef="job-task-waitapplicants">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${publish == true}]]></conditionExpression>
+    </sequenceFlow>
+    <boundaryEvent id="job-bt-waitjobtask" name="Timer" attachedToRef="job-task-waitapplicants" cancelActivity="true">
+      <timerEventDefinition>
+        <timeDuration>PT3S</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <userTask id="job-task-shortlist" name="Short List Applicants"></userTask>
+    <sequenceFlow id="flow5" sourceRef="job-task-waitapplicants" targetRef="job-task-shortlist"></sequenceFlow>
+    <endEvent id="job-event-pubend" name="CancelEnd">
+      <documentation>publish job cancelled</documentation>
+    </endEvent>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_jobProcess">
+    <bpmndi:BPMNPlane bpmnElement="jobProcess" id="BPMNPlane_jobProcess">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="130.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-def" id="BPMNShape_job-def">
+        <omgdc:Bounds height="55.0" width="105.0" x="230.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-pub" id="BPMNShape_job-pub">
+        <omgdc:Bounds height="55.0" width="105.0" x="420.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-gw-pub" id="BPMNShape_job-gw-pub">
+        <omgdc:Bounds height="40.0" width="40.0" x="570.0" y="208.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-task-waitapplicants" id="BPMNShape_job-task-waitapplicants">
+        <omgdc:Bounds height="55.0" width="105.0" x="655.0" y="201.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-bt-waitjobtask" id="BPMNShape_job-bt-waitjobtask">
+        <omgdc:Bounds height="30.0" width="30.0" x="725.0" y="231.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-task-shortlist" id="BPMNShape_job-task-shortlist">
+        <omgdc:Bounds height="55.0" width="105.0" x="805.0" y="201.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="job-event-pubend" id="BPMNShape_job-event-pubend">
+        <omgdc:Bounds height="35.0" width="35.0" x="570.0" y="70.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="165.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="230.0" y="227.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="335.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="420.0" y="227.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="525.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="570.0" y="228.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="job-flow-pubcancel" id="BPMNEdge_job-flow-pubcancel">
+        <omgdi:waypoint x="590.0" y="208.0"></omgdi:waypoint>
+        <omgdi:waypoint x="587.0" y="105.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="job-flow-pub" id="BPMNEdge_job-flow-pub">
+        <omgdi:waypoint x="610.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="655.0" y="228.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="760.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="805.0" y="228.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
